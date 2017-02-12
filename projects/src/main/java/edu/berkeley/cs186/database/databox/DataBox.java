@@ -7,7 +7,7 @@ package edu.berkeley.cs186.database.databox;
  * DataBoxes are also comparable allowing comparisons or sorting.
  *
  * Provides default functionality for all DataBox subclasses by assuming that the contained value is
- * not of the type specified.
+ * not of the type specified.f
  */
 public abstract class DataBox implements Comparable {
 

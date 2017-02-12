@@ -44,7 +44,17 @@ public class Schema {
    */
   public Record verify(List<DataBox> values) throws SchemaException {
     // TODO: implement me!
-    return null;
+    if(values.size()!=this.fields.size())
+        throw new SchemaException("values and fields are not equal amounts");
+    for(int i = 0;i<this.fieldTypes.size();i++){
+        DataBox v = values.get(i);
+        DataBox f = this.fieldTypes.get(i);
+        if(v.type()!=f.type()||(v.getSize()!=f.getSize()))
+            throw new SchemaException("values have incorrect types");
+
+    }
+
+    return new Record(values);
   }
 
   /**
@@ -58,7 +68,11 @@ public class Schema {
    */
   public byte[] encode(Record record) {
     // TODO: implement me!
-    return null;
+      ByteBuffer encoded = ByteBuffer.allocate(this.size);
+      for(DataBox values:record.getValues()){
+          encoded.put(values.getBytes());
+      }
+    return encoded.array();
   }
 
   /**
@@ -70,7 +84,26 @@ public class Schema {
    */
   public Record decode(byte[] input) {
     // TODO: implement me!
-    return null;
+      List<DataBox> decoded= new ArrayList<DataBox>();
+      int index = 0;
+      for(DataBox type: fieldTypes){
+          byte[] valueinbyteform = Arrays.copyOfRange(input,index,index+type.getSize());
+          switch(type.type()){
+              case BOOL:
+                  decoded.add(new BoolDataBox(valueinbyteform));
+                  break;
+              case FLOAT:
+                  decoded.add(new FloatDataBox(valueinbyteform));
+                  break;
+              case INT:
+                  decoded.add(new IntDataBox(valueinbyteform));
+                  break;
+              default:
+                  decoded.add(new StringDataBox(valueinbyteform));
+          }
+          index+=type.getSize();
+      }
+    return new Record(decoded);
   }
 
   public int getEntrySize() {

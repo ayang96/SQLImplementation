@@ -82,6 +82,7 @@ public class TestTable {
     Table stringTable = createTestTable(stringSchema, "stringTable");
     int numEntries = stringTable.getNumEntriesPerPage();
     stringTable.close();
+    System.out.println((-128/2));
     assertEquals("NumEntries per page is incorrect", 40, numEntries);
   }
 
@@ -390,5 +391,99 @@ public class TestTable {
     }
     assertFalse(iRec.hasNext());
   }
+  @Test
+  @Category(StudentTest.class)
+  public void testTableMultiplePages2() throws DatabaseException {
+    Record input = TestUtils.createRecordWithAllTypes();
+    RecordID[] recID= new RecordID[1000];
+    int numEntriesPerPage = table.getNumEntriesPerPage();
 
+    // create one page's worth of entries
+    for (int i = 0; i < numEntriesPerPage; i++) {
+      recID[i] = table.addRecord(input.getValues());
+
+      // ensure that records are created in sequential slot order on the sam page
+      assertEquals(1, recID[i].getPageNum());
+      assertEquals(i, recID[i].getEntryNumber());
+    }
+    //update half of these records
+    for (int i = 0; i < numEntriesPerPage; i=i+2) {
+      input.getValues().get(1).setInt(i);
+      table.updateRecord(input.getValues(), recID[i]);
+    }
+    //Read these records and check correctness
+    Record newrec;
+    for (int i = 0; i < numEntriesPerPage; i=i+2) {
+      newrec=table.getRecord(recID[i]);
+      assertEquals(i, newrec.getValues().get(1).getInt());
+    }
+    //Delete half of these
+    for (int i = 0; i < numEntriesPerPage; i=i+2) {
+      table.deleteRecord(recID[i]);
+    }
+    //Add half of these again
+    for (int i = 0; i < numEntriesPerPage; i=i+2) {
+      recID[i] = table.addRecord(input.getValues());
+      // ensure that records are created in sequential slot order on the sam page
+      assertEquals(1, recID[i].getPageNum());
+      assertEquals(i, recID[i].getEntryNumber());
+    }
+
+    // add one more to make sure the next page is created
+    RecordID rid = table.addRecord(input.getValues());
+    assertEquals(2, rid.getPageNum());
+    assertEquals(0, rid.getEntryNumber());
+  }
+  @Test (expected = DatabaseException.class)
+  @Category(StudentTest.class)
+  public void testGetRecordError() throws DatabaseException {
+    Record input = TestUtils.createRecordWithAllTypes();
+    RecordID[] recID= new RecordID[1000];
+    int numEntriesPerPage = table.getNumEntriesPerPage();
+
+    // create some entries of a page
+    for (int i = 0; i < numEntriesPerPage-50; i++) {
+      recID[i] = table.addRecord(input.getValues());
+
+      // ensure that records are created in sequential slot order on the sam page
+      assertEquals(1, recID[i].getPageNum());
+      assertEquals(i, recID[i].getEntryNumber());
+    }
+    RecordID falserecord = new RecordID(1,table.getNumEntriesPerPage()-49);
+    table.getRecord(falserecord);
+  }
+  @Test (expected = DatabaseException.class)
+  @Category(StudentTest.class)
+  public void testReadPage0Error() throws DatabaseException {
+    RecordID falserecord = new RecordID(0,0);
+    table.getRecord(falserecord);
+  }
+
+  @Test (expected = DatabaseException.class)
+  @Category(StudentTest.class)
+  public void updateEmptyEntry() throws DatabaseException {
+    Record input = TestUtils.createRecordWithAllTypes();
+    RecordID[] recID= new RecordID[1000];
+    int numEntriesPerPage = table.getNumEntriesPerPage();
+
+    // create some entries of a page
+    for (int i = 0; i < numEntriesPerPage-50; i++) {
+      recID[i] = table.addRecord(input.getValues());
+
+      // ensure that records are created in sequential slot order on the sam page
+      assertEquals(1, recID[i].getPageNum());
+      assertEquals(i, recID[i].getEntryNumber());
+    }
+    RecordID falserecord = new RecordID(1,numEntriesPerPage-49);
+    table.updateRecord(input.getValues(),falserecord);
+  }
+  @Test
+  @Category(StudentTest.class)
+  public void iterateEmptyTable() throws DatabaseException {
+    Iterator<Record> iRec = table.iterator();
+    assertFalse(iRec.hasNext());
+    assertEquals(null,iRec.next());
+  }
 }
+
+
