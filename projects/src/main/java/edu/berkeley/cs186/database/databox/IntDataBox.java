@@ -24,11 +24,17 @@ public class IntDataBox extends DataBox {
     this.i = i;
   }
 
+  public void sayHi(){
+    System.out.print("hello");
+  }
+
   /**
    * Construct an IntDataBox from the bytes in buf.
    *
    * @param buf the byte buffer source
    */
+
+
   public IntDataBox(byte[] buf) {
     if (buf.length != this.getSize()) {
       throw new DataBoxException("Wrong size buffer for int");

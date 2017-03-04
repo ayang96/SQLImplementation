@@ -43,15 +43,21 @@ public class Schema {
    * @throws SchemaException if the values specified don't conform to this Schema
    */
   public Record verify(List<DataBox> values) throws SchemaException {
-    // TODO: implement me!
-    if(values.size()!=this.fields.size())
-        throw new SchemaException("values and fields are not equal amounts");
-    for(int i = 0;i<this.fieldTypes.size();i++){
-        DataBox v = values.get(i);
-        DataBox f = this.fieldTypes.get(i);
-        if(v.type()!=f.type()||(v.getSize()!=f.getSize()))
-            throw new SchemaException("values have incorrect types");
+    if (values.size() != this.fieldTypes.size()) {
+      throw new SchemaException("Different numbers of fields specified.");
+    }
 
+    for (int i = 0; i < values.size(); i++) {
+      DataBox valueType = values.get(i);
+      DataBox fieldType = this.fieldTypes.get(i);
+
+      if (!(valueType.type().equals(fieldType.type()))) {
+        throw new SchemaException("Field " + i + " is " + valueType.type() + " instead of " + fieldType.type() + ".");
+      }
+
+      if (valueType.getSize() != fieldType.getSize()) {
+        throw new SchemaException("Field " + i + " is " + valueType.getSize() + " bytes instead of " + fieldType.getString() + " bytes.");
+      }
     }
 
     return new Record(values);
@@ -67,12 +73,13 @@ public class Schema {
    * @return the encoded record as a byte[]
    */
   public byte[] encode(Record record) {
-    // TODO: implement me!
-      ByteBuffer encoded = ByteBuffer.allocate(this.size);
-      for(DataBox values:record.getValues()){
-          encoded.put(values.getBytes());
-      }
-    return encoded.array();
+    ByteBuffer byteBuffer = ByteBuffer.allocate(this.size);
+
+    for (DataBox value : record.getValues()) {
+      byteBuffer.put(value.getBytes());
+    }
+
+    return byteBuffer.array();
   }
 
   /**
@@ -83,27 +90,30 @@ public class Schema {
    * @return the decoded Record
    */
   public Record decode(byte[] input) {
-    // TODO: implement me!
-      List<DataBox> decoded= new ArrayList<DataBox>();
-      int index = 0;
-      for(DataBox type: fieldTypes){
-          byte[] valueinbyteform = Arrays.copyOfRange(input,index,index+type.getSize());
-          switch(type.type()){
-              case BOOL:
-                  decoded.add(new BoolDataBox(valueinbyteform));
-                  break;
-              case FLOAT:
-                  decoded.add(new FloatDataBox(valueinbyteform));
-                  break;
-              case INT:
-                  decoded.add(new IntDataBox(valueinbyteform));
-                  break;
-              default:
-                  decoded.add(new StringDataBox(valueinbyteform));
-          }
-          index+=type.getSize();
+    int offset = 0;
+
+    List<DataBox> values = new ArrayList<DataBox>();
+    for (DataBox field : fieldTypes) {
+      byte[] fieldBytes = Arrays.copyOfRange(input, offset, offset + field.getSize());
+      offset += field.getSize();
+
+      switch (field.type()) {
+        case STRING:
+          values.add(new StringDataBox(fieldBytes));
+          break;
+        case INT:
+          values.add(new IntDataBox(fieldBytes));
+          break;
+        case FLOAT:
+          values.add(new FloatDataBox(fieldBytes));
+          break;
+        case BOOL:
+          values.add(new BoolDataBox(fieldBytes));
+          break;
       }
-    return new Record(decoded);
+    }
+
+    return new Record(values);
   }
 
   public int getEntrySize() {

@@ -129,6 +129,27 @@ public class BPlusTree {
      */
     public void insertKey(DataBox key, RecordID rid) {
         // Implement me!
+        //First find the leaf node that should contain this key
+        BPlusNode root;
+        if (this.rootPageNum== this.firstLeafPageNum) {
+            //Root is a leaf during the initial stage
+            root = new LeafNode(this, this.rootPageNum);
+        } else {
+            root=new InnerNode(this,this.rootPageNum);
+        }
+        LeafEntry le=new LeafEntry(key,rid);
+        InnerEntry ie=root.insertBEntry(le);
+        if(ie!=null) {//root needs a split
+            InnerNode newroot = new InnerNode(this);
+            newroot.setFirstChild(this.rootPageNum);
+            //This new root has one entry pf key+pointer
+            List<BEntry> myList = new ArrayList<BEntry>();
+            myList.add(ie);
+            newroot.overwriteBNodeEntries(myList);
+            this.updateRoot(newroot.getPageNum());
+            //this.incrementNumNodes(); This function call is not necessary because InnerNode(this) will do that
+        }
+
     }
 
     /**
@@ -229,6 +250,15 @@ public class BPlusTree {
      */
     private class BPlusIterator implements Iterator<RecordID> {
         // Implement me!
+        Stack <BPlusNode> listParents; //Postorder list of parents that should be visited next
+        int currentPage; //current page number in a  key-sorted order
+        Iterator<RecordID> lscan;//current iterator of RecordID within the current leaf node
+        List<BEntry> siblingList; //Next sibling should be visited
+        int siblingCursor; //Current position in the sibling list
+        DataBox keyCompare; //Key to compare for equality/range search, null if nothing to compare
+        boolean rangeSearch; //True if it is a range search
+
+        Page pageref;
 
         /**
          * Construct an iterator that performs a sorted scan on this BPlusTree
@@ -240,6 +270,13 @@ public class BPlusTree {
          */
         public BPlusIterator(BPlusNode root) {
             // Implement me!
+            keyCompare=null; //nothing to compare
+            rangeSearch=false;
+            lscan=null;//nothing to see for now
+            listParents=new Stack<BPlusNode>();
+            pushAllLeft(root);
+            siblingList=null;
+            siblingCursor=0;//nothing to see from the sibling list
         }
 
         /**
@@ -256,8 +293,77 @@ public class BPlusTree {
          */
         public BPlusIterator(BPlusNode root, DataBox key, boolean scan) {
             // Implement me!
-        }
+            keyCompare=key;
+            rangeSearch=scan;
+            lscan=null;//nothing to see for now
+            listParents=new Stack<BPlusNode>();
+            pushAllLeft(root);
+            siblingList=null;
+            siblingCursor=0;//nothing to see from the sibling list
 
+        }
+        /*
+        Push all parents visited into a stack that allows a post-order visitation
+         */
+        private void pushAllLeft(BPlusNode node) {
+            BPlusNode bp=node;
+            while (!bp.isLeaf()){ //Push to the left nodes as much as possible
+                this.listParents.add(bp);
+                int leftNo= ((InnerNode) bp).getFirstChild(); //get the left child
+                if(leftNo<=0|| BPlusTree.this.numNodes<leftNo){//somethind is wrong
+                    throw new NoSuchElementException();
+                }
+                bp=BPlusNode.getBPlusNode(BPlusTree.this,leftNo);
+
+            }
+            //Now this node is a leaf
+            LeafNode lnode=(LeafNode)bp;
+            if(keyCompare==null)
+                this.lscan= lnode.scan();
+            else {
+                if(rangeSearch)
+                    this.lscan=lnode.scanFrom(keyCompare);
+                else //now it is an equal key lookup
+                    if(lnode.containsKey(keyCompare))
+                        this.lscan=lnode.scanForKey(keyCompare);
+                    else this.lscan=null;//nothing is found in this leave node
+            }
+        }
+        /*prepare for next scan
+        * @return true if next scan is prepared successfully, there is a next element available
+        * false means nothing is available anymore.
+        */
+        private boolean prepareScan() {
+            BPlusNode bp;
+            BEntry be;
+            int childNo;
+            lscan=null; //current scan list is not good anymore
+            while(true) {
+                while (siblingList != null && siblingCursor < siblingList.size()) {
+
+                    be = siblingList.get(siblingCursor);
+                    siblingCursor++;
+                    childNo = be.getPageNum();
+                    if(keyCompare!=null && rangeSearch ==false) { // exact search
+                        if(be.getKey().compareTo(keyCompare)>0){// the current key is bigger than search key
+                            return false;
+                        }
+                    }
+                    bp = BPlusNode.getBPlusNode(BPlusTree.this, childNo);
+                    pushAllLeft(bp);
+                    if (lscan != null && lscan.hasNext()) {
+                        return true;
+                    }
+                }
+                //We have visited all siblings, we need to move up
+                if (this.listParents.empty())
+                    return false; //nothing to see
+                bp = this.listParents.pop();
+                siblingList=bp.getAllValidEntries();
+                siblingCursor=0; //We have already visited the left most, start from here
+
+            }
+        }
         /**
          * Confirm if iterator has more RecordIDs to return.
          *
@@ -265,8 +371,17 @@ public class BPlusTree {
          * otherwise
          */
         public boolean hasNext() {
-            // Implement me!
-            return false;
+            // Implement me!t
+            BPlusNode bp;
+            BEntry be;
+            int childNo;
+            if(lscan!=null&& lscan.hasNext())
+                return true;
+
+            //Nothing to see in the current leaf node
+            //If the current leaf has no more record, we will look for next sibling leaf node in the B+ tree
+            return prepareScan();
+
         }
 
         /**
@@ -278,7 +393,15 @@ public class BPlusTree {
          */
         public RecordID next() {
             // Implement me!
-            return null;
+            boolean tryNext;
+            if(lscan!=null&&lscan.hasNext())
+                return lscan.next();
+            tryNext=prepareScan();
+            if(tryNext)
+                return lscan.next();//we know parepScan must have done successfully.
+            else
+                throw new NoSuchElementException();
+
         }
 
         public void remove() {
