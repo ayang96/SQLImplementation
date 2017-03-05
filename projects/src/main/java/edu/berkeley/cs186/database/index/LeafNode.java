@@ -47,18 +47,18 @@ public class LeafNode extends BPlusNode {
     @Override
     public InnerEntry insertBEntry(LeafEntry ent) {
         // Implement me!
-    if(this.hasSpace()){
         List<BEntry> entries= getAllValidEntries();
         for(BEntry entry: entries){
             if(ent.equals(entry)){//if entry is already there
                 return null;
             }
         }
-        entries.add(ent);
-        Collections.sort(entries);
-        this.overwriteBNodeEntries(entries);
-        return null;
-    }
+        if(this.hasSpace()){
+            entries.add(ent);
+            Collections.sort(entries);
+            this.overwriteBNodeEntries(entries);
+            return null;
+        }
         InnerEntry upEntry = splitNode(ent);
         return upEntry;
     }
