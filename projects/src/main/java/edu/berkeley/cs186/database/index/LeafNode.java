@@ -49,6 +49,11 @@ public class LeafNode extends BPlusNode {
         // Implement me!
     if(this.hasSpace()){
         List<BEntry> entries= getAllValidEntries();
+        for(BEntry entry: entries){
+            if(ent.equals(entry)){//if entry is already there
+                return null;
+            }
+        }
         entries.add(ent);
         Collections.sort(entries);
         this.overwriteBNodeEntries(entries);

@@ -130,6 +130,9 @@ public class BPlusTree {
     public void insertKey(DataBox key, RecordID rid) {
         // Implement me!
         //First find the leaf node that should contain this key
+        if(key==null||rid==null){
+            return;
+        }
         BPlusNode root;
         if (this.rootPageNum== this.firstLeafPageNum) {
             //Root is a leaf during the initial stage
@@ -138,6 +141,7 @@ public class BPlusTree {
             root=new InnerNode(this,this.rootPageNum);
         }
         LeafEntry le=new LeafEntry(key,rid);
+
         InnerEntry ie=root.insertBEntry(le);
         if(ie!=null) {//root needs a split
             InnerNode newroot = new InnerNode(this);
