@@ -6,7 +6,6 @@ import edu.berkeley.cs186.database.table.RecordID;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * An inner node of a B+ tree. An InnerNode header contains an `isLeaf` flag
@@ -54,15 +53,16 @@ public class InnerNode extends BPlusNode {
      * contains the given key
      */
     public int findChildFromKey(DataBox key) {
-        int keyPage = getFirstChild();  // Default keyPage
-        List<BEntry> entries = getAllValidEntries();
-        for (BEntry ent : entries) {
-            if (key.compareTo(ent.getKey()) < 0) {
+        int childToTraverse = getFirstChild();
+        List<BEntry> validEntries = getAllValidEntries();
+        for (BEntry entry : validEntries) {
+            if (key.compareTo(entry.getKey()) < 0) {
                 break;
+            } else {
+                childToTraverse = entry.getPageNum();
             }
-            keyPage = ent.getPageNum();
         }
-        return keyPage;
+        return childToTraverse;
     }
 
     /**
@@ -73,24 +73,23 @@ public class InnerNode extends BPlusNode {
      * as a result of this InnerNode being split, null otherwise
      */
     public InnerEntry insertBEntry(LeafEntry ent) {
-        // Implement me!
-        int childPageNo= findChildFromKey(ent.getKey());
-        BPlusNode bp= getBPlusNode(this.getTree(), childPageNo);
-        InnerEntry retEntry =bp.insertBEntry(ent);
-        if (retEntry==null) {//no need to modify this inner node
+        int childPageNum = findChildFromKey(ent.getKey());
+        BPlusNode childNode = getBPlusNode(getTree(), childPageNum);
+        InnerEntry pushedEntry = childNode.insertBEntry(ent);
+
+        if (pushedEntry != null) {
+            if (hasSpace()) {
+                List<BEntry> validEntries = getAllValidEntries();
+                validEntries.add(pushedEntry);
+                Collections.sort(validEntries);
+                overwriteBNodeEntries(validEntries);
+                return null;
+            } else {
+                return splitNode(pushedEntry);
+            }
+        } else {
             return null;
         }
-        //Now we have insert this retEntry from children to this node
-
-        if (this.hasSpace()){
-            List<BEntry> entries = getAllValidEntries();
-            entries.add(retEntry);
-            Collections.sort(entries); //Sort all entries following Alternative 1 design
-            this.overwriteBNodeEntries(entries);
-            return null; //no split is needed
-        }
-        InnerEntry upEntry=splitNode(retEntry);
-        return upEntry;
     }
 
     /**
@@ -105,37 +104,22 @@ public class InnerNode extends BPlusNode {
      */
     @Override
     public InnerEntry splitNode(BEntry newEntry) {
-        // Implement me!
-        BPlusTree tree = getTree();
-        //tree.incrementNumNodes();
+        List<BEntry> validEntries = getAllValidEntries();
+        validEntries.add(newEntry);
+        Collections.sort(validEntries);
 
-        // Implement me!
-        // Move half of entries to the new leaf node
-        List<BEntry> entries = getAllValidEntries();
-        entries.add(newEntry);
-        Collections.sort(entries);
-        int midpoint=entries.size()/2;
-        List<BEntry> entryLeft = new ArrayList<BEntry>();
-        for (int i=0; i<midpoint; i++){
-            entryLeft.add(entries.get(i));
-        }
-        this.overwriteBNodeEntries(entryLeft);
+        List<BEntry> leftNodeEntries = validEntries.subList(0, validEntries.size()/2);
+        BEntry middleEntry = validEntries.get(validEntries.size()/2);
+        List<BEntry> rightNodeEntries = validEntries.subList(validEntries.size()/2 + 1, validEntries.size());
 
-        BEntry midEntry=entries.get(midpoint);
-        int midRight=midEntry.getPageNum();
-        BPlusNode rightInnerNode= new InnerNode(tree); //it will allocate a page also
-        ( (InnerNode) rightInnerNode).setFirstChild(midRight);
+        overwriteBNodeEntries(leftNodeEntries);
 
-        List<BEntry> entryRight = new ArrayList<BEntry>();
-        for (int i= midpoint+1; i<entries.size();i++){//start from midpoint+1
-            entryRight.add(entries.get(i));
-        }
-        rightInnerNode.overwriteBNodeEntries(entryRight);
+        InnerNode rightNode = new InnerNode(getTree());
+        rightNode.setFirstChild(middleEntry.getPageNum());
+        rightNode.overwriteBNodeEntries(rightNodeEntries);
 
-        //Push the middle key up. We donot leave a copy in this inner node
-        InnerEntry upEntry= new InnerEntry(midEntry.getKey(), rightInnerNode.getPageNum());
+        InnerEntry newMiddleEntry = new InnerEntry(middleEntry.getKey(), rightNode.getPageNum());
 
-        return upEntry;
-
+        return newMiddleEntry;
     }
 }

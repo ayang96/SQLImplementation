@@ -1,13 +1,11 @@
 package edu.berkeley.cs186.database.table;
 
-import edu.berkeley.cs186.database.StudentTest;
 import edu.berkeley.cs186.database.TestUtils;
 import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.databox.IntDataBox;
 import edu.berkeley.cs186.database.databox.StringDataBox;
 
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,44 +53,5 @@ public class TestSchema {
 
     schema.verify(values);
   }
-  @Test
-  @Category(StudentTest.class)
-  public void testNewSchema() {
-    List<String> fields = new ArrayList<String>();
-    List<DataBox> fieldTypes = new ArrayList<DataBox>();
-    List<DataBox> values = new ArrayList<DataBox>();
-    fields.add("Name");
-    fields.add("Major");
-    fields.add("Age");
-    fieldTypes.add(new StringDataBox(10));
-    fieldTypes.add(new StringDataBox(10));
-    fieldTypes.add(new IntDataBox());
-    Schema studentSchema = new Schema(fields,fieldTypes);
-    values.add(new StringDataBox("Alex",10));
-    values.add(new StringDataBox("Comp Sci",10));
-    values.add(new IntDataBox(20));
-    try {
-      studentSchema.verify(values);
-    } catch (SchemaException se) {
-      fail();
-    }
-  }
-  @Test(expected = SchemaException.class)
-  @Category(StudentTest.class)
-  public void testFalseStringLength() throws SchemaException{
-    List<String> fields = new ArrayList<String>();
-    List<DataBox> fieldTypes = new ArrayList<DataBox>();
-    List<DataBox> values = new ArrayList<DataBox>();
-    fields.add("Name");
-    fields.add("Major");
-    fields.add("Age");
-    fieldTypes.add(new StringDataBox(10));
-    fieldTypes.add(new StringDataBox(10));
-    fieldTypes.add(new IntDataBox());
-    Schema studentSchema = new Schema(fields,fieldTypes);
-    values.add(new StringDataBox("Alex",9));
-    values.add(new StringDataBox("Comp Sciasfasefaefasefasefasfasfasdfsafsa",11));
-    values.add(new IntDataBox(20));
-    studentSchema.verify(values);
-  }
+
 }

@@ -46,21 +46,15 @@ public class LeafNode extends BPlusNode {
      */
     @Override
     public InnerEntry insertBEntry(LeafEntry ent) {
-        // Implement me!
-        List<BEntry> entries= getAllValidEntries();
-        for(BEntry entry: entries){
-            if(ent.equals(entry)){//if entry is already there
-                return null;
-            }
-        }
-        if(this.hasSpace()){
-            entries.add(ent);
-            Collections.sort(entries);
-            this.overwriteBNodeEntries(entries);
+        if (hasSpace()) {
+            List<BEntry> validEntries = getAllValidEntries();
+            validEntries.add(ent);
+            Collections.sort(validEntries);
+            overwriteBNodeEntries(validEntries);
             return null;
+        } else {
+            return splitNode(ent);
         }
-        InnerEntry upEntry = splitNode(ent);
-        return upEntry;
     }
 
     /**
@@ -75,26 +69,22 @@ public class LeafNode extends BPlusNode {
      */
     @Override
     public InnerEntry splitNode(BEntry newEntry) {
-        // Implement me!
-        BPlusTree tree = this.getTree();
-        List<BEntry> entries = getAllValidEntries();
-        entries.add(newEntry);
-        Collections.sort(entries);
-        List<BEntry> entryLeft = new ArrayList<BEntry>();
-        for(int i = 0;i<entries.size()/2;i++){
-            entryLeft.add(entries.get(i));
-        }
-        this.overwriteBNodeEntries(entryLeft);
-        BPlusNode rightLeafNode = new LeafNode(tree);
-        List<BEntry> entryRight = new ArrayList<BEntry>();
-        for(int i = entries.size()/2;i<entries.size();i++){
-            entryRight.add(entries.get(i));
-        }
-        rightLeafNode.overwriteBNodeEntries(entryRight);
-        BEntry midEntry = entries.get(entries.size()/2);
-        InnerEntry upEntry =  new InnerEntry(midEntry.getKey(), rightLeafNode.getPageNum());
+        List<BEntry> validEntries = getAllValidEntries();
+        validEntries.add(newEntry);
+        Collections.sort(validEntries);
 
-        return upEntry;
+        List<BEntry> leftNodeEntries = validEntries.subList(0, validEntries.size()/2);
+        BEntry middleEntry = validEntries.get(validEntries.size()/2);
+        List<BEntry> rightNodeEntries = validEntries.subList(validEntries.size()/2, validEntries.size());
+
+        overwriteBNodeEntries(leftNodeEntries);
+
+        LeafNode rightNode = new LeafNode(getTree());
+        rightNode.overwriteBNodeEntries(rightNodeEntries);
+
+        InnerEntry newMiddleEntry = new InnerEntry(middleEntry.getKey(), rightNode.getPageNum());
+
+        return newMiddleEntry;
     }
 
 
