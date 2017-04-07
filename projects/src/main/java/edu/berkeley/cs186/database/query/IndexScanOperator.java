@@ -71,9 +71,50 @@ public class IndexScanOperator extends QueryOperator {
    */
   private class IndexScanIterator implements Iterator<Record> {
     /* TODO: Implement the IndexScanIterator */
+    private Record nextRecord;
+    private boolean noMoreNext;//flag to show there is no more next any more
 
+    private Iterator<Record> recordIterator;
     public IndexScanIterator() throws QueryPlanException, DatabaseException {
       /* TODO */
+      this.recordIterator=null;
+      this.nextRecord=null;
+      this.noMoreNext=true;
+
+      if(IndexScanOperator.this.tableName==null)
+        throw new DatabaseException("No table name");
+
+      if(columnName==null||predicate==null){
+        recordIterator=IndexScanOperator.this.transaction.getRecordIterator(IndexScanOperator.this.tableName);
+        return;
+      }
+      //From now, we assume the index exists,
+      if(!IndexScanOperator.this.transaction.indexExists(tableName, columnName))
+        throw new DatabaseException("No index exists for this column name");
+
+      noMoreNext=false;
+      switch(IndexScanOperator.this.predicate) {
+        case EQUALS:
+          recordIterator = IndexScanOperator.this.transaction.lookupKey(tableName, columnName, value);
+          return;
+        case GREATER_THAN_EQUALS:
+          recordIterator = IndexScanOperator.this.transaction.sortedScanFrom(tableName, columnName, value);
+          return;
+        case GREATER_THAN:
+          recordIterator = IndexScanOperator.this.transaction.sortedScanFrom(tableName, columnName, value);
+          return;
+        case LESS_THAN:
+          recordIterator = IndexScanOperator.this.transaction.sortedScan(tableName, columnName);
+          return;
+        case LESS_THAN_EQUALS:
+          recordIterator = IndexScanOperator.this.transaction.sortedScan(tableName, columnName);
+          return;
+        case NOT_EQUALS:
+          recordIterator = IndexScanOperator.this.transaction.sortedScan(tableName, columnName);
+          return;
+      }
+      throw new DatabaseException("Invalid predicate");
+
     }
 
     /**
@@ -83,6 +124,60 @@ public class IndexScanOperator extends QueryOperator {
      */
     public boolean hasNext() {
       /* TODO */
+      if (noMoreNext){
+        return false;
+      }
+      if(this.nextRecord!=null){
+        return true;
+      }
+
+      if(tableName==null) return false;
+
+      if (columnName==null || IndexScanOperator.this.predicate==null) {
+        if(this.recordIterator.hasNext()){
+          nextRecord=this.recordIterator.next();
+          return true;
+        };
+        return false;
+      }
+      switch(predicate){
+        case EQUALS:
+        case GREATER_THAN_EQUALS:
+          if(this.recordIterator.hasNext()){
+            nextRecord=this.recordIterator.next();
+            return true;
+          };
+          return false;
+      }
+      //Now we have to fetch the record to check if condition is satisfied
+      while(this.recordIterator.hasNext()) {
+        this.nextRecord=this.recordIterator.next();
+        DataBox colValue = this.nextRecord.getValues().get(columnIndex);
+        int cp= colValue.compareTo(IndexScanOperator.this.value);
+        switch (predicate) {
+          case GREATER_THAN:
+            if(cp>0)
+              return true;
+            break;
+          case LESS_THAN:
+            if(cp<0)
+              return true;
+            else {
+              noMoreNext=true;
+              return false;//this is no point to loop anymore as rest of records is in a sorted order
+            }
+          case LESS_THAN_EQUALS:
+            if(cp<=0)
+              return true;
+            else {
+              noMoreNext=true;
+              return false;//this is no point to loop anymore as rest of records is in a sorted order
+            }
+          case NOT_EQUALS:
+            if(cp!=0)
+              return true;
+        }
+      }
       return false;
     }
 
@@ -94,6 +189,11 @@ public class IndexScanOperator extends QueryOperator {
      */
     public Record next() {
       /* TODO */
+      if(this.hasNext() ){
+        Record r = this.nextRecord;
+        this.nextRecord = null;
+        return r;
+      }
       throw new NoSuchElementException();
     }
 

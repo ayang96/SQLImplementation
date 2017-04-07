@@ -180,6 +180,7 @@ public class TestJoinOperator {
     }
 
     @Test(timeout=5000)
+    //@Test
     public void testSimpleJoinGHJ() throws QueryPlanException, DatabaseException, IOException {
         TestSourceOperator sourceOperator = new TestSourceOperator();
         File tempDir = tempFolder.newFolder("joinTest");
@@ -209,6 +210,7 @@ public class TestJoinOperator {
     }
 
     @Test(timeout=5000)
+    //@Test
     public void testSimpleSortMergeJoin() throws QueryPlanException, DatabaseException, IOException {
         TestSourceOperator sourceOperator = new TestSourceOperator();
         File tempDir = tempFolder.newFolder("joinTest");
@@ -314,6 +316,78 @@ public class TestJoinOperator {
         }
 
         assertTrue(count == 165888);
+    }
+
+    @Test(timeout=5000)
+    @Category(StudentTestP3.class)
+    public void testSimpleSortMergeOutputOrder() throws QueryPlanException, DatabaseException, IOException {
+        File tempDir = tempFolder.newFolder("joinTest");
+        Database d = new Database(tempDir.getAbsolutePath());
+        Database.Transaction transaction = d.beginTransaction();
+        Record r1 = TestUtils.createRecordWithAllTypesWithValue(1);
+        List<DataBox> r1Vals = r1.getValues();
+        Record r2 = TestUtils.createRecordWithAllTypesWithValue(2);
+        List<DataBox> r2Vals = r2.getValues();
+
+        List<DataBox> expectedRecordValues1 = new ArrayList<DataBox>();
+        List<DataBox> expectedRecordValues2 = new ArrayList<DataBox>();
+        for (int i = 0; i < 2; i++) {
+          for (DataBox val: r1Vals) {
+            expectedRecordValues1.add(val);
+          }
+          for (DataBox val: r2Vals) {
+            expectedRecordValues2.add(val);
+          }
+        }
+
+        Record expectedRecord1 = new Record(expectedRecordValues1);
+        Record expectedRecord2 = new Record(expectedRecordValues2);
+        d.createTable(TestUtils.createSchemaWithAllTypes(), "leftTable");
+        d.createTable(TestUtils.createSchemaWithAllTypes(), "rightTable");
+
+        int total=144; //Even number only. leftTable contains 2*total of the same records and
+        // each page can hold upto 288 or 289 records
+        // If total >=146, records of the same key spreads to two different pages
+        //The  specification says no backtracking is needed and
+        // we can assume records of the same key are in the same page. Thus set total=144 or less
+        for (int i = 0; i < total; i++) {
+          List<DataBox> vals;
+          if (i < total/2) {
+            vals = r1Vals;
+          } else {
+            vals = r2Vals;
+          }
+          transaction.addRecord("leftTable", vals);
+          transaction.addRecord("rightTable", vals);
+        }
+
+        for (int i = 0; i < total; i++) {
+          if (i < total/2) {
+            transaction.addRecord("leftTable", r2Vals);
+            transaction.addRecord("rightTable", r1Vals);
+          } else {
+            transaction.addRecord("leftTable", r1Vals);
+            transaction.addRecord("rightTable", r2Vals);
+          }
+        }
+
+        QueryOperator s1 = new SequentialScanOperator(transaction,"leftTable");
+        QueryOperator s2 = new SequentialScanOperator(transaction,"rightTable");
+        QueryOperator joinOperator = new SortMergeOperator(s1, s2, "int", "int", transaction);
+
+        int count = 0;
+        Iterator<Record> outputIterator = joinOperator.iterator();
+
+        while (outputIterator.hasNext()) {
+          if (count < total*total) {
+            assertEquals(expectedRecord1, outputIterator.next());
+          } else  {
+            assertEquals(expectedRecord2, outputIterator.next());
+          }
+          count++;
+        }
+
+        assertTrue(count == 2*total*total);
     }
 
     @Test(timeout=5000)
