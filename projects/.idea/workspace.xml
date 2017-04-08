@@ -16,11 +16,11 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="TestIndexScanOperator.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="TestIndexScanOperator.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/edu/berkeley/cs186/database/query/TestIndexScanOperator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2687">
-              <caret line="161" column="23" lean-forward="true" selection-start-line="161" selection-start-column="23" selection-end-line="161" selection-end-column="23" />
+            <state relative-caret-position="-2850">
+              <caret line="608" column="51" lean-forward="true" selection-start-line="608" selection-start-column="51" selection-end-line="608" selection-end-column="51" />
               <folding>
                 <element signature="e#2220#2229#0" expanded="true" />
                 <element signature="e#2292#2301#0" expanded="true" />
@@ -29,6 +29,13 @@
                 <element signature="e#2508#2517#0" expanded="true" />
                 <element signature="e#2580#2589#0" expanded="true" />
                 <element signature="e#3370#3378#0" expanded="true" />
+                <element signature="e#16444#16452#0" expanded="true" />
+                <element signature="e#19961#19969#0" expanded="true" />
+                <element signature="e#23503#23511#0" expanded="true" />
+                <element signature="e#25149#25158#0" expanded="true" />
+                <element signature="e#25221#25230#0" expanded="true" />
+                <element signature="e#29687#29695#0" expanded="true" />
+                <element signature="e#33228#33236#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -37,8 +44,8 @@
       <file leaf-file-name="TestGroupByOperator.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/edu/berkeley/cs186/database/query/TestGroupByOperator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="763">
-              <caret line="107" column="3" lean-forward="true" selection-start-line="107" selection-start-column="3" selection-end-line="107" selection-end-column="3" />
+            <state relative-caret-position="225">
+              <caret line="100" column="3" lean-forward="true" selection-start-line="100" selection-start-column="3" selection-end-line="100" selection-end-column="3" />
               <folding />
             </state>
           </provider>
@@ -57,8 +64,8 @@
       <file leaf-file-name="TestSelectOperator.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/edu/berkeley/cs186/database/query/TestSelectOperator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="23" column="13" lean-forward="false" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
+            <state relative-caret-position="180">
+              <caret line="31" column="23" lean-forward="false" selection-start-line="31" selection-start-column="23" selection-end-line="31" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -84,11 +91,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TestJoinOperator.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="TestJoinOperator.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/edu/berkeley/cs186/database/query/TestJoinOperator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-5192">
-              <caret line="149" column="42" lean-forward="true" selection-start-line="149" selection-start-column="42" selection-end-line="149" selection-end-column="42" />
+            <state relative-caret-position="600">
+              <caret line="528" column="39" lean-forward="true" selection-start-line="528" selection-start-column="39" selection-end-line="528" selection-end-column="39" />
               <folding />
             </state>
           </provider>
@@ -109,7 +116,15 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="4230">
               <caret line="301" column="0" lean-forward="false" selection-start-line="301" selection-start-column="0" selection-end-line="301" selection-end-column="0" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+                <element signature="e#3651#3659#0" expanded="false" />
+                <element signature="e#3711#3720#0" expanded="false" />
+                <element signature="e#5165#5173#0" expanded="false" />
+                <element signature="e#6193#6194#0" expanded="false" />
+                <element signature="e#6225#6226#0" expanded="false" />
+                <element signature="e#15170#15178#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -119,7 +134,25 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1380">
               <caret line="108" column="0" lean-forward="false" selection-start-line="108" selection-start-column="0" selection-end-line="108" selection-end-column="0" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+                <element signature="e#1556#1557#0" expanded="false" />
+                <element signature="e#1611#1612#0" expanded="false" />
+                <element signature="e#2345#2346#0" expanded="false" />
+                <element signature="e#2389#2390#0" expanded="false" />
+                <element signature="e#2667#2668#0" expanded="false" />
+                <element signature="e#2698#2699#0" expanded="false" />
+                <element signature="e#2737#2738#0" expanded="false" />
+                <element signature="e#2768#2769#0" expanded="false" />
+                <element signature="e#2800#2801#0" expanded="false" />
+                <element signature="e#2836#2837#0" expanded="false" />
+                <element signature="e#4817#4825#0" expanded="false" />
+                <element signature="e#5659#5660#0" expanded="false" />
+                <element signature="e#5706#5707#0" expanded="false" />
+                <element signature="e#5832#5833#0" expanded="false" />
+                <element signature="e#5883#5884#0" expanded="false" />
+                <element signature="e#8048#8059#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -135,6 +168,7 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/src/main/java/edu/berkeley/cs186/database/query/BNLJOperator.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/berkeley/cs186/database/query/TestJoinOperator.java" />
         <option value="$PROJECT_DIR$/src/test/java/edu/berkeley/cs186/database/query/TestIndexScanOperator.java" />
       </list>
     </option>
@@ -323,85 +357,7 @@
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
   </component>
-  <component name="RunManager" selected="JUnit.TestGroupByOperator">
-    <configuration default="false" name="TestIndexScanOperator.testIndexScanGreaterthanRecords" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
-        <pattern>
-          <option name="PATTERN" value="edu.berkeley.cs186.database.query.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <module name="projects" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="edu.berkeley.cs186.database.query" />
-      <option name="MAIN_CLASS_NAME" value="edu.berkeley.cs186.database.query.TestIndexScanOperator" />
-      <option name="METHOD_NAME" value="testIndexScanGreaterthanRecords" />
-      <option name="TEST_OBJECT" value="method" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
-      </option>
-      <envs />
-      <patterns />
-      <method />
-    </configuration>
-    <configuration default="false" name="TestIndexScanOperator.testIndexScanEqualsRecords" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
-        <pattern>
-          <option name="PATTERN" value="edu.berkeley.cs186.database.query.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <module name="projects" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="edu.berkeley.cs186.database.query" />
-      <option name="MAIN_CLASS_NAME" value="edu.berkeley.cs186.database.query.TestIndexScanOperator" />
-      <option name="METHOD_NAME" value="testIndexScanEqualsRecords" />
-      <option name="TEST_OBJECT" value="method" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
-      </option>
-      <envs />
-      <patterns />
-      <method />
-    </configuration>
-    <configuration default="false" name="TestIndexScanOperator.testIndexScanPredRecords" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
-        <pattern>
-          <option name="PATTERN" value="edu.berkeley.cs186.database.query.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <module name="projects" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="edu.berkeley.cs186.database.query" />
-      <option name="MAIN_CLASS_NAME" value="edu.berkeley.cs186.database.query.TestIndexScanOperator" />
-      <option name="METHOD_NAME" value="testIndexScanPredRecords" />
-      <option name="TEST_OBJECT" value="method" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
-      </option>
-      <envs />
-      <patterns />
-      <method />
-    </configuration>
+  <component name="RunManager" selected="JUnit.TestIndexScanOperator.testSimpleSortMergeOutputOrder1">
     <configuration default="false" name="TestIndexScanOperator.testIndexScanPredRecordsFrom1" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
         <pattern>
@@ -442,6 +398,84 @@
       <option name="MAIN_CLASS_NAME" value="edu.berkeley.cs186.database.query.TestGroupByOperator" />
       <option name="METHOD_NAME" />
       <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <method />
+    </configuration>
+    <configuration default="false" name="TestIndexScanOperator.testIndexScanGreaterThan" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="edu.berkeley.cs186.database.query.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="projects" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="edu.berkeley.cs186.database.query" />
+      <option name="MAIN_CLASS_NAME" value="edu.berkeley.cs186.database.query.TestIndexScanOperator" />
+      <option name="METHOD_NAME" value="testIndexScanGreaterThan" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <method />
+    </configuration>
+    <configuration default="false" name="TestIndexScanOperator" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="edu.berkeley.cs186.database.query.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="projects" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="edu.berkeley.cs186.database.query" />
+      <option name="MAIN_CLASS_NAME" value="edu.berkeley.cs186.database.query.TestIndexScanOperator" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <method />
+    </configuration>
+    <configuration default="false" name="TestIndexScanOperator.testSimpleSortMergeOutputOrder1" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="edu.berkeley.cs186.database.query.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="projects" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="edu.berkeley.cs186.database.query" />
+      <option name="MAIN_CLASS_NAME" value="edu.berkeley.cs186.database.query.TestIndexScanOperator" />
+      <option name="METHOD_NAME" value="testSimpleSortMergeOutputOrder1" />
+      <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
@@ -681,19 +715,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator.testIndexScanGreaterthanRecords" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator.testIndexScanEqualsRecords" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator.testIndexScanPredRecords" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator.testIndexScanPredRecordsFrom1" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.TestGroupByOperator" />
+      <item index="0" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator.testIndexScanPredRecordsFrom1" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.TestGroupByOperator" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator.testIndexScanGreaterThan" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator.testSimpleSortMergeOutputOrder1" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="JUnit.TestGroupByOperator" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator.testIndexScanPredRecordsFrom1" />
-        <item index="2" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator.testIndexScanPredRecords" />
-        <item index="3" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator.testIndexScanGreaterthanRecords" />
-        <item index="4" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator.testIndexScanEqualsRecords" />
+        <item index="0" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator.testSimpleSortMergeOutputOrder1" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator.testIndexScanGreaterThan" />
+        <item index="3" class="java.lang.String" itemvalue="JUnit.TestGroupByOperator" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.TestIndexScanOperator.testIndexScanPredRecordsFrom1" />
       </list>
     </recent_temporary>
   </component>
@@ -714,20 +748,17 @@
     <history-entry file="TestGroupByOperator - 2017.04.07 at 14h 26m 20s.xml">
       <configuration name="TestGroupByOperator" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TestIndexScanOperator_testIndexScanGreaterthanRecords - 2017.04.06 at 13h 02m 16s.xml">
-      <configuration name="TestIndexScanOperator.testIndexScanGreaterthanRecords" configurationId="JUnit" />
+    <history-entry file="TestIndexScanOperator - 2017.04.07 at 20h 07m 19s.xml">
+      <configuration name="TestIndexScanOperator" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TestIndexScanOperator_testIndexScanGreaterthanRecords - 2017.04.06 at 13h 03m 06s.xml">
-      <configuration name="TestIndexScanOperator.testIndexScanGreaterthanRecords" configurationId="JUnit" />
+    <history-entry file="TestIndexScanOperator - 2017.04.07 at 20h 08m 21s.xml">
+      <configuration name="TestIndexScanOperator" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TestIndexScanOperator_testIndexScanGreaterthanRecords - 2017.04.06 at 13h 07m 46s.xml">
-      <configuration name="TestIndexScanOperator.testIndexScanGreaterthanRecords" configurationId="JUnit" />
+    <history-entry file="TestIndexScanOperator_testIndexScanGreaterThan - 2017.04.07 at 19h 49m 59s.xml">
+      <configuration name="TestIndexScanOperator.testIndexScanGreaterThan" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TestIndexScanOperator_testIndexScanGreaterthanRecords - 2017.04.06 at 13h 09m 36s.xml">
-      <configuration name="TestIndexScanOperator.testIndexScanGreaterthanRecords" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="TestIndexScanOperator_testIndexScanGreaterthanRecords - 2017.04.06 at 13h 11m 23s.xml">
-      <configuration name="TestIndexScanOperator.testIndexScanGreaterthanRecords" configurationId="JUnit" />
+    <history-entry file="TestIndexScanOperator_testIndexScanGreaterThan - 2017.04.07 at 20h 03m 41s.xml">
+      <configuration name="TestIndexScanOperator.testIndexScanGreaterThan" configurationId="JUnit" />
     </history-entry>
     <history-entry file="TestIndexScanOperator_testIndexScanGreaterthanRecords - 2017.04.06 at 13h 13m 15s.xml">
       <configuration name="TestIndexScanOperator.testIndexScanGreaterthanRecords" configurationId="JUnit" />
@@ -740,6 +771,9 @@
     </history-entry>
     <history-entry file="TestIndexScanOperator_testIndexScanPredRecordsFrom1 - 2017.04.07 at 14h 23m 25s.xml">
       <configuration name="TestIndexScanOperator.testIndexScanPredRecordsFrom1" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="TestIndexScanOperator_testSimpleSortMergeOutputOrder1 - 2017.04.07 at 21h 33m 08s.xml">
+      <configuration name="TestIndexScanOperator.testSimpleSortMergeOutputOrder1" configurationId="JUnit" />
     </history-entry>
   </component>
   <component name="TodoView">
@@ -758,14 +792,14 @@
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32977098" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32977098" sideWeight="0.49030694" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32977098" sideWeight="0.48707592" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32977098" sideWeight="0.5177706" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32671756" sideWeight="0.52100164" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.10662359" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32977098" sideWeight="0.4822294" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32671756" sideWeight="0.4789984" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32977098" sideWeight="0.48707592" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -811,6 +845,13 @@
             <element signature="e#2508#2517#0" expanded="true" />
             <element signature="e#2580#2589#0" expanded="true" />
             <element signature="e#3370#3378#0" expanded="true" />
+            <element signature="e#16444#16452#0" expanded="true" />
+            <element signature="e#19961#19969#0" expanded="true" />
+            <element signature="e#23503#23511#0" expanded="true" />
+            <element signature="e#25149#25158#0" expanded="true" />
+            <element signature="e#25221#25230#0" expanded="true" />
+            <element signature="e#29687#29695#0" expanded="true" />
+            <element signature="e#33228#33236#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -828,7 +869,7 @@
         <state relative-caret-position="315">
           <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
           <folding>
-            <element signature="e#453#454#0" expanded="true" />
+            <element signature="e#453#454#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -853,7 +894,15 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4230">
           <caret line="301" column="0" lean-forward="false" selection-start-line="301" selection-start-column="0" selection-end-line="301" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#3651#3659#0" expanded="false" />
+            <element signature="e#3711#3720#0" expanded="false" />
+            <element signature="e#5165#5173#0" expanded="false" />
+            <element signature="e#6193#6194#0" expanded="false" />
+            <element signature="e#6225#6226#0" expanded="false" />
+            <element signature="e#15170#15178#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -861,7 +910,25 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1380">
           <caret line="108" column="0" lean-forward="false" selection-start-line="108" selection-start-column="0" selection-end-line="108" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1556#1557#0" expanded="false" />
+            <element signature="e#1611#1612#0" expanded="false" />
+            <element signature="e#2345#2346#0" expanded="false" />
+            <element signature="e#2389#2390#0" expanded="false" />
+            <element signature="e#2667#2668#0" expanded="false" />
+            <element signature="e#2698#2699#0" expanded="false" />
+            <element signature="e#2737#2738#0" expanded="false" />
+            <element signature="e#2768#2769#0" expanded="false" />
+            <element signature="e#2800#2801#0" expanded="false" />
+            <element signature="e#2836#2837#0" expanded="false" />
+            <element signature="e#4817#4825#0" expanded="false" />
+            <element signature="e#5659#5660#0" expanded="false" />
+            <element signature="e#5706#5707#0" expanded="false" />
+            <element signature="e#5832#5833#0" expanded="false" />
+            <element signature="e#5883#5884#0" expanded="false" />
+            <element signature="e#8048#8059#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -962,7 +1029,7 @@
         <state relative-caret-position="315">
           <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
           <folding>
-            <element signature="e#453#454#0" expanded="true" />
+            <element signature="e#453#454#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -995,7 +1062,25 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1380">
           <caret line="108" column="0" lean-forward="false" selection-start-line="108" selection-start-column="0" selection-end-line="108" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1556#1557#0" expanded="false" />
+            <element signature="e#1611#1612#0" expanded="false" />
+            <element signature="e#2345#2346#0" expanded="false" />
+            <element signature="e#2389#2390#0" expanded="false" />
+            <element signature="e#2667#2668#0" expanded="false" />
+            <element signature="e#2698#2699#0" expanded="false" />
+            <element signature="e#2737#2738#0" expanded="false" />
+            <element signature="e#2768#2769#0" expanded="false" />
+            <element signature="e#2800#2801#0" expanded="false" />
+            <element signature="e#2836#2837#0" expanded="false" />
+            <element signature="e#4817#4825#0" expanded="false" />
+            <element signature="e#5659#5660#0" expanded="false" />
+            <element signature="e#5706#5707#0" expanded="false" />
+            <element signature="e#5832#5833#0" expanded="false" />
+            <element signature="e#5883#5884#0" expanded="false" />
+            <element signature="e#8048#8059#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1003,7 +1088,15 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4230">
           <caret line="301" column="0" lean-forward="false" selection-start-line="301" selection-start-column="0" selection-end-line="301" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#3651#3659#0" expanded="false" />
+            <element signature="e#3711#3720#0" expanded="false" />
+            <element signature="e#5165#5173#0" expanded="false" />
+            <element signature="e#6193#6194#0" expanded="false" />
+            <element signature="e#6225#6226#0" expanded="false" />
+            <element signature="e#15170#15178#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1023,9 +1116,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/edu/berkeley/cs186/database/query/TestSelectOperator.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/berkeley/cs186/database/query/TestProjectOperator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
+        <state relative-caret-position="15">
           <caret line="23" column="13" lean-forward="false" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
           <folding />
         </state>
@@ -1039,26 +1132,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/edu/berkeley/cs186/database/query/TestProjectOperator.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/berkeley/cs186/database/query/TestSelectOperator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="23" column="13" lean-forward="false" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
+        <state relative-caret-position="180">
+          <caret line="31" column="23" lean-forward="false" selection-start-line="31" selection-start-column="23" selection-end-line="31" selection-end-column="23" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/edu/berkeley/cs186/database/query/TestGroupByOperator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="763">
-          <caret line="107" column="3" lean-forward="true" selection-start-line="107" selection-start-column="3" selection-end-line="107" selection-end-column="3" />
+        <state relative-caret-position="225">
+          <caret line="100" column="3" lean-forward="true" selection-start-line="100" selection-start-column="3" selection-end-line="100" selection-end-column="3" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/berkeley/cs186/database/query/TestJoinOperator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="600">
+          <caret line="528" column="39" lean-forward="true" selection-start-line="528" selection-start-column="39" selection-end-line="528" selection-end-column="39" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/edu/berkeley/cs186/database/query/TestIndexScanOperator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2687">
-          <caret line="161" column="23" lean-forward="true" selection-start-line="161" selection-start-column="23" selection-end-line="161" selection-end-column="23" />
+        <state relative-caret-position="-2850">
+          <caret line="608" column="51" lean-forward="true" selection-start-line="608" selection-start-column="51" selection-end-line="608" selection-end-column="51" />
           <folding>
             <element signature="e#2220#2229#0" expanded="true" />
             <element signature="e#2292#2301#0" expanded="true" />
@@ -1067,15 +1168,14 @@
             <element signature="e#2508#2517#0" expanded="true" />
             <element signature="e#2580#2589#0" expanded="true" />
             <element signature="e#3370#3378#0" expanded="true" />
+            <element signature="e#16444#16452#0" expanded="true" />
+            <element signature="e#19961#19969#0" expanded="true" />
+            <element signature="e#23503#23511#0" expanded="true" />
+            <element signature="e#25149#25158#0" expanded="true" />
+            <element signature="e#25221#25230#0" expanded="true" />
+            <element signature="e#29687#29695#0" expanded="true" />
+            <element signature="e#33228#33236#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/edu/berkeley/cs186/database/query/TestJoinOperator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-5192">
-          <caret line="149" column="42" lean-forward="true" selection-start-line="149" selection-start-column="42" selection-end-line="149" selection-end-column="42" />
-          <folding />
         </state>
       </provider>
     </entry>
