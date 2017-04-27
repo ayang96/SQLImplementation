@@ -6,6 +6,7 @@ import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.Schema;
 import edu.berkeley.cs186.database.table.stats.TableStats;
+import edu.berkeley.cs186.database.table.stats.Histogram;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -44,14 +45,70 @@ public class IndexScanOperator extends QueryOperator {
     this.setOutputSchema(this.computeSchema());
     columnName = this.checkSchemaForColumn(this.getOutputSchema(), columnName);
     this.columnIndex = this.getOutputSchema().getFieldNames().indexOf(columnName);
+ 
+    this.stats = this.estimateStats();
+    this.cost = this.estimateIOCost();
   }
 
-  public String toString() {
+  public String str() {
     return "type: " + this.getType() +
         "\ntable: " + this.tableName +
         "\ncolumn: " + this.columnName +
         "\noperator: " + this.predicate +
         "\nvalue: " + this.value;
+  }
+
+  /**
+   * Estimates the table statistics for the result of executing this query operator.
+   *
+   * @return estimated TableStats
+   */
+  public TableStats estimateStats() throws QueryPlanException {
+    TableStats stats;
+
+    try {
+      stats = this.transaction.getStats(this.tableName);
+    } catch (DatabaseException de) {
+      throw new QueryPlanException(de);
+    }
+
+    return stats.copyWithPredicate(this.columnIndex,
+                                   this.predicate,
+                                   this.value);
+  }
+
+  /**
+   * Estimates the IO cost of executing this query operator.
+   * You should calculate this estimate cost with the formula
+   * taught to you in class. Note that the index you've implemented
+   * in this project is an unclustered index.
+   *
+   * You will find the following instance variables helpful:
+   * this.transaction, this.tableName, this.columnName,
+   * this.columnIndex, this.predicate, and this.value.
+   *
+   * You will find the following methods helpful: this.transaction.getStats,
+   * this.transaction.getNumRecords, this.transaction.getNumIndexPages,
+   * and tableStats.getReductionFactor.
+   *
+   * @return estimate IO cost
+   * @throws QueryPlanException
+   */
+  public int estimateIOCost() throws QueryPlanException {
+    /* TODO: Implement me! */
+    //The IO cost formula following #slides 60 of Query Optimization Lecture.
+    //reductionFactor *(Number of pages for index  + Number of records in this table)
+
+    //float reductF=this.stats.getReductionFactor(columnIndex,predicate, value);
+    try{
+      float reductF=this.transaction.getStats(tableName).getReductionFactor(columnIndex,predicate,value);
+      long norecords = this.transaction.getNumRecords(this.tableName);
+      int noIndexPages=this.transaction.getNumIndexPages(this.tableName,columnName);
+      double estimate = Math.ceil((double) (norecords+noIndexPages) *reductF);
+      return (int) estimate;
+    } catch(DatabaseException  e){
+      throw new QueryPlanException("getNumRecords fails");
+    }
   }
 
   public Iterator<Record> iterator() throws QueryPlanException, DatabaseException {
@@ -70,51 +127,41 @@ public class IndexScanOperator extends QueryOperator {
    * An implementation of Iterator that provides an iterator interface for this operator.
    */
   private class IndexScanIterator implements Iterator<Record> {
-    /* TODO: Implement the IndexScanIterator */
+    private Iterator<Record> sourceIterator;
     private Record nextRecord;
-    private boolean noMoreNext;//flag to show there is no more next any more
 
-    private Iterator<Record> recordIterator;
     public IndexScanIterator() throws QueryPlanException, DatabaseException {
-      /* TODO */
-      this.recordIterator=null;
-      this.nextRecord=null;
-      this.noMoreNext=true;
+      this.nextRecord = null;
+      if (IndexScanOperator.this.predicate == QueryPlan.PredicateOperator.EQUALS) {
+        this.sourceIterator = IndexScanOperator.this.transaction.lookupKey(
+                IndexScanOperator.this.tableName,
+                IndexScanOperator.this.columnName,
+                IndexScanOperator.this.value);
+      } else if (IndexScanOperator.this.predicate == QueryPlan.PredicateOperator.LESS_THAN ||
+              IndexScanOperator.this.predicate == QueryPlan.PredicateOperator.LESS_THAN_EQUALS) {
+        this.sourceIterator = IndexScanOperator.this.transaction.sortedScan(
+                IndexScanOperator.this.tableName,
+                IndexScanOperator.this.columnName);
+      } else if (IndexScanOperator.this.predicate == QueryPlan.PredicateOperator.GREATER_THAN) {
+        this.sourceIterator = IndexScanOperator.this.transaction.sortedScanFrom(
+                IndexScanOperator.this.tableName,
+                IndexScanOperator.this.columnName,
+                IndexScanOperator.this.value);
+        while (this.sourceIterator.hasNext()) {
+          Record r = this.sourceIterator.next();
 
-      if(IndexScanOperator.this.tableName==null)
-        throw new DatabaseException("No table name");
-
-      if(columnName==null||predicate==null){
-        recordIterator=IndexScanOperator.this.transaction.getRecordIterator(IndexScanOperator.this.tableName);
-        return;
+          if (r.getValues().get(IndexScanOperator.this.columnIndex)
+                  .compareTo(IndexScanOperator.this.value) > 0) {
+            this.nextRecord = r;
+            break;
+          }
+        }
+      } else if (IndexScanOperator.this.predicate == QueryPlan.PredicateOperator.GREATER_THAN_EQUALS) {
+        this.sourceIterator = IndexScanOperator.this.transaction.sortedScanFrom(
+                IndexScanOperator.this.tableName,
+                IndexScanOperator.this.columnName,
+                IndexScanOperator.this.value);
       }
-      //From now, we assume the index exists,
-      if(!IndexScanOperator.this.transaction.indexExists(tableName, columnName))
-        throw new DatabaseException("No index exists for this column name");
-
-      noMoreNext=false;
-      switch(IndexScanOperator.this.predicate) {
-        case EQUALS:
-          recordIterator = IndexScanOperator.this.transaction.lookupKey(tableName, columnName, value);
-          return;
-        case GREATER_THAN_EQUALS:
-          recordIterator = IndexScanOperator.this.transaction.sortedScanFrom(tableName, columnName, value);
-          return;
-        case GREATER_THAN:
-          recordIterator = IndexScanOperator.this.transaction.sortedScanFrom(tableName, columnName, value);
-          return;
-        case LESS_THAN:
-          recordIterator = IndexScanOperator.this.transaction.sortedScan(tableName, columnName);
-          return;
-        case LESS_THAN_EQUALS:
-          recordIterator = IndexScanOperator.this.transaction.sortedScan(tableName, columnName);
-          return;
-        case NOT_EQUALS:
-          recordIterator = IndexScanOperator.this.transaction.sortedScan(tableName, columnName);
-          return;
-      }
-      throw new DatabaseException("Invalid predicate");
-
     }
 
     /**
@@ -123,60 +170,35 @@ public class IndexScanOperator extends QueryOperator {
      * @return true if this iterator has another record to yield, otherwise false
      */
     public boolean hasNext() {
-      /* TODO */
-      if (noMoreNext){
-        return false;
-      }
-      if(this.nextRecord!=null){
+      if (this.nextRecord != null) {
         return true;
       }
-
-      if(tableName==null) return false;
-
-      if (columnName==null || IndexScanOperator.this.predicate==null) {
-        if(this.recordIterator.hasNext()){
-          nextRecord=this.recordIterator.next();
+      if (IndexScanOperator.this.predicate == QueryPlan.PredicateOperator.LESS_THAN) {
+        if (this.sourceIterator.hasNext()) {
+          Record r = this.sourceIterator.next();
+          if (r.getValues().get(IndexScanOperator.this.columnIndex)
+                  .compareTo(IndexScanOperator.this.value) >= 0) {
+            return false;
+          }
+          this.nextRecord = r;
           return true;
-        };
+        }
+        return false;
+      } else if (IndexScanOperator.this.predicate == QueryPlan.PredicateOperator.LESS_THAN_EQUALS) {
+        if (this.sourceIterator.hasNext()) {
+          Record r = this.sourceIterator.next();
+          if (r.getValues().get(IndexScanOperator.this.columnIndex)
+                  .compareTo(IndexScanOperator.this.value) > 0) {
+            return false;
+          }
+          this.nextRecord = r;
+          return true;
+        }
         return false;
       }
-      switch(predicate){
-        case EQUALS:
-        case GREATER_THAN_EQUALS:
-          if(this.recordIterator.hasNext()){
-            nextRecord=this.recordIterator.next();
-            return true;
-          };
-          return false;
-      }
-      //Now we have to fetch the record to check if condition is satisfied
-      while(this.recordIterator.hasNext()) {
-        this.nextRecord=this.recordIterator.next();
-        DataBox colValue = this.nextRecord.getValues().get(columnIndex);
-        int cp= colValue.compareTo(IndexScanOperator.this.value);
-        switch (predicate) {
-          case GREATER_THAN:
-            if(cp>0)
-              return true;
-            break;
-          case LESS_THAN:
-            if(cp<0)
-              return true;
-            else {
-              noMoreNext=true;
-              return false;//this is no point to loop anymore as rest of records is in a sorted order
-            }
-          case LESS_THAN_EQUALS:
-            if(cp<=0)
-              return true;
-            else {
-              noMoreNext=true;
-              return false;//this is no point to loop anymore as rest of records is in a sorted order
-            }
-          case NOT_EQUALS:
-            if(cp!=0)
-              return true;
-        }
+      if (this.sourceIterator.hasNext()) {
+        this.nextRecord = this.sourceIterator.next();
+        return true;
       }
       return false;
     }
@@ -188,8 +210,7 @@ public class IndexScanOperator extends QueryOperator {
      * @throws NoSuchElementException if there are no more Records to yield
      */
     public Record next() {
-      /* TODO */
-      if(this.hasNext() ){
+      if (this.hasNext()) {
         Record r = this.nextRecord;
         this.nextRecord = null;
         return r;

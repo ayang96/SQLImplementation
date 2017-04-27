@@ -27,16 +27,18 @@ public class SortMergeOperator extends JoinOperator {
   public Iterator<Record> iterator() throws QueryPlanException, DatabaseException {
     return new SortMergeOperator.SortMergeIterator();
   }
+  
+  public int estimateIOCost() throws QueryPlanException {
+    // You don't need to implement this.
+    throw new QueryPlanException("Not yet implemented!");
+  }
 
   /**
   * An implementation of Iterator that provides an iterator interface for this operator.
   */
   private class SortMergeIterator implements Iterator<Record> {
-    /* TODO: Implement the SortMergeIterator */
     private String leftTableName;
     private String rightTableName;
-    private Iterator<Record> leftRecIterator;
-    private Iterator<Record> rightRecIterator;
     private Iterator<Page> leftIterator;
     private Iterator<Page> rightIterator;
     private Record leftRecord;
@@ -48,264 +50,240 @@ public class SortMergeOperator extends JoinOperator {
     private byte[] rightHeader;
     private int leftEntryNum;
     private int rightEntryNum;
-    private int leftNo_of_Entries, rightNo_of_Entries;
-    private Schema leftSchema,rightSchema;
-    private int leftEntrySize, rightEntrySize, leftHeaderSize, rightHeaderSize;
-    // add these fields to memorize last equality comparsion
-    private boolean lastEQFound;// true means there was an EQ match last time, more can be found
-    private int rightEQStart;//starting entry number of the right table page
+    private Page[] block;
+    private int rightEntryMark;
+    private boolean marked;
 
     public SortMergeIterator() throws QueryPlanException, DatabaseException {
-      /* TODO */
-
-      this.leftRecIterator = getLeftSource().iterator();
-      this.rightRecIterator = getRightSource().iterator(); 
-      leftTableName = "Temp SortMerge Left Table"; 
-      rightTableName = "Temp SortMerge Right Table";
-      SortMergeOperator.this.createTempTable(getLeftSource().getOutputSchema(), leftTableName);
-      SortMergeOperator.this.createTempTable(getRightSource().getOutputSchema(), rightTableName);
-      sortTable(leftRecIterator, leftTableName, new LeftRecordComparator());
-      sortTable(rightRecIterator, rightTableName, new RightRecordComparator() );
-
-      this.leftIterator=SortMergeOperator.this.getPageIterator(this.leftTableName);
-      this.leftIterator.next();//skip page 0
-      this.rightIterator=SortMergeOperator.this.getPageIterator(this.rightTableName);
-      this.rightIterator.next();//skip page 0
-      leftRecord=nextRecord=rightRecord=null;
-      leftPage= rightPage=null;
-      leftNo_of_Entries=SortMergeOperator.this.getNumEntriesPerPage(this.leftTableName);
-      rightNo_of_Entries=SortMergeOperator.this.getNumEntriesPerPage(this.rightTableName);
-      leftHeader= rightHeader=null;
-      leftEntryNum= rightEntryNum=0;//to be fetched next
-      leftSchema=SortMergeOperator.this.getLeftSource().getOutputSchema();
-      rightSchema=SortMergeOperator.this.getRightSource().getOutputSchema();
-      leftHeaderSize=SortMergeOperator.this.getHeaderSize(this.leftTableName);
-      rightHeaderSize=SortMergeOperator.this.getHeaderSize(this.rightTableName);
-      leftEntrySize=SortMergeOperator.this.getEntrySize(this.leftTableName);
-      rightEntrySize=SortMergeOperator.this.getEntrySize(this.rightTableName);
-
-      this.getNextLeftPage();
-      this.getNextRightPage();
-      lastEQFound=false;
-    }
-
-    /* Read a database table and sort it, and then output
-     */
-    private void sortTable(Iterator<Record> iter, String tableName, Comparator cp){
-	    ArrayList<Record> recordList=new ArrayList<Record>();
-        Record r;
-        DataBox keyValue;
-        List<DataBox> listval;
-        int hashpartval;
-    	while (iter.hasNext()) {
-          r=iter.next();
-          recordList.add(r);
+      if (SortMergeOperator.this.getLeftSource().isSequentialScan()) {
+        this.leftTableName = ((SequentialScanOperator)SortMergeOperator.this.getLeftSource()).getTableName();
+      } else {
+        this.leftTableName = "Temp" + SortMergeOperator.this.getJoinType().toString() + "Operator" + SortMergeOperator.this.getLeftColumnName() + "Left";
+        SortMergeOperator.this.createTempTable(SortMergeOperator.this.getLeftSource().getOutputSchema(), leftTableName);
+        Iterator<Record> leftIter = SortMergeOperator.this.getLeftSource().iterator();
+        while (leftIter.hasNext()) {
+          SortMergeOperator.this.addRecord(leftTableName, leftIter.next().getValues());
         }
-	    Collections.sort(recordList,cp);
-	    for (int i=0 ;i<recordList.size(); i++){
-            r=recordList.get(i);
-            try {
-                SortMergeOperator.this.addRecord(tableName, r.getValues());
-            } catch(DatabaseException e) {
-                return; //somehow failed to continue.
-            }
+      }
+      if (SortMergeOperator.this.getRightSource().isSequentialScan()) {
+        this.rightTableName = ((SequentialScanOperator)SortMergeOperator.this.getRightSource()).getTableName();
+      } else {
+        this.rightTableName = "Temp" + SortMergeOperator.this.getJoinType().toString() + "Operator" + SortMergeOperator.this.getRightColumnName() + "Right";
+        SortMergeOperator.this.createTempTable(SortMergeOperator.this.getRightSource().getOutputSchema(), rightTableName);
+        Iterator<Record> rightIter = SortMergeOperator.this.getRightSource().iterator();
+        while (rightIter.hasNext()) {
+          SortMergeOperator.this.addRecord(rightTableName, rightIter.next().getValues());
+        }
+      }
+      this.leftTableName = sortMerge(this.leftTableName, new LeftRecordComparator());
+      this.rightTableName = sortMerge(this.rightTableName, new RightRecordComparator());
 
-	    }
-	    recordList.clear();
+      this.leftIterator = SortMergeOperator.this.getPageIterator(this.leftTableName);
+      this.rightIterator = SortMergeOperator.this.getPageIterator(this.rightTableName);
+      this.nextRecord = null;
+      this.leftEntryNum = 0;
+      this.rightEntryNum = 0;
+      this.marked = false;
+      if (this.leftIterator.hasNext()) {
+        assert (this.leftIterator.next().getPageNum() == 0);
+        if (this.leftIterator.hasNext()) {
+          this.leftPage = this.leftIterator.next();
+          this.leftHeader = SortMergeOperator.this.getPageHeader(this.leftTableName, this.leftPage);
+          advanceLeftTable();
+        }
+      }
+      if (this.rightIterator.hasNext()) {
+        assert(this.rightIterator.next().getPageNum() == 0);
+        if (this.rightIterator.hasNext()) {
+          this.rightPage = this.rightIterator.next();
+          this.rightHeader = SortMergeOperator.this.getPageHeader(this.rightTableName, this.rightPage);
+          advanceRightTable();
+        }
+      }
     }
 
     /**
-    * Checks if there are more record(s) to yield
-    *
-    * @return true if this iterator has another record to yield, otherwise false
-    */
+     * Checks if there are more record(s) to yield
+     *
+     * @return true if this iterator has another record to yield, otherwise false
+     */
     public boolean hasNext() {
-        /* TODO */
-        if (this.nextRecord!= null){
-        	return true;
-        }
-        LeftRightRecordComparator cp=new LeftRightRecordComparator(); 
-        boolean succ;
-        //We follow SortMerge algorithm from Slide #60+ of the lecture
-	    //We also follow the assumption of this project that once we find equal records, we donot need to backtrack to the previous page
-   
-	    if(lastEQFound==false){//we did not find equal pairs last time
-	        succ= advanceLeftTable();//make sure leftRecord!=null
-	        if(!succ) return false;
-	        succ= advanceRightTable();//make sure rightRecord!=null
-	        if(!succ) return false;
-	        while(cp.compare(this.leftRecord, this.rightRecord)<0){//leftRecord <rightRecord
-		        this.leftRecord=null;//drop the current one
-		        succ= advanceLeftTable();//make sure leftRecord!=null
-		        if(!succ) return false;
-	        }
-	        while(cp.compare(this.leftRecord, this.rightRecord)>0){//leftRecord >rightRecord
-		        this.rightRecord=null;//drop the current one
-		        succ= advanceRightTable();//make sure rightRecord!=null
-		        if(!succ) return false;
-	        }
-	        lastEQFound=true;//we find an equal pair
-            rightEQStart=this.rightEntryNum-1; //First we mark the start position of equal records
-	    }
-	    //Now we double check if the last pair built is a good pair
-	    //if (cp.compare(leftRecord, rightRecord)==0){//leftRecord ==rightRecord
-		//Loop for all equal left records
-            	//while( cp.compare(this.leftRecord, this.rightRecord)==0){//leftRecord ==rightRecord
-		//Loop for all equal right records
-			 
-	    List<DataBox> leftValues = new ArrayList<DataBox>(this.leftRecord.getValues());
-	    List<DataBox> rightValues = new ArrayList<DataBox>(this.rightRecord.getValues());
-	    leftValues.addAll(rightValues);
-	    this.nextRecord=new Record(leftValues);
-
-	    //Prepare for the  next pair of equal records
-	    this.rightRecord=null;//drop the current one
-	    advanceRightTable();//advance within the same page, assuming no backtrack is needed
-	    if(this.rightRecord==null || cp.compare(leftRecord, rightRecord)!=0){
-		    //no right record is found within the same page.  We loop to next left record
-		    this.leftRecord=null;//drop the current one
-		    advanceLeftTable();
-	    	this.rightEntryNum=rightEQStart; //reset  the right record pointer
-		    this.rightRecord=null;//drop the current one
-		    advanceRightTable();
-
-	    }
-	    if(leftRecord==null || rightRecord==null || cp.compare(leftRecord, rightRecord)!=0){
-		//no pair is found
-                lastEQFound=false;   //no longer available under the current equal condition
-        }
-	    return true;
-    }
-
-    /*
-      @return next matched record from the current right record,  and the left list of matched records
-     */
-    //private void yieldOutput(){
-         //DataBox leftJoinValue = this.leftRecord.getValues().get(SortMergeOperator.this.getLeftColumnIndex());
-         //DataBox rightJoinValue = this.rightRecord.getValues().get(SortMergeOperator.this.getRightColumnIndex());
-         //if (leftJoinValue.equals(rightJoinValue)) 
-    //}
-
-
-    /*Advance left record to next position
-     * @return true means sucessful, otherwise failure.
-     */
-
-    private boolean advanceLeftTable() {
-      /* TODO */
-        while(this.leftRecord == null){
-		    if(this.leftEntryNum<this.leftNo_of_Entries){//more to read this page
-	  		    this.leftRecord=getNextLeftRecordInPage();
-	  		    this.leftEntryNum++;
-		    }else { //this page has no records
-	       	      if(!getNextLeftPage()) //unsucessful
-			     return false;
-		    }
-	    }
-      return true;
-    }
-    /*
-     Read next page from the right source
-     @return: true means successful. false means failure.
-     */
-    private boolean getNextRightPage() {
-        if(!this.rightIterator.hasNext()) return false;
-        this.rightPage = this.rightIterator.next();
-        try {
-            rightHeader = SortMergeOperator.this.getPageHeader(this.rightTableName, rightPage);
-        } catch (DatabaseException e) {
-            return false;
-        }
-        this.rightEntryNum=0;
+      if (this.nextRecord != null) {
         return true;
-    }
-    /*
-     Read next page from the left source
-     @return: true means successful. false means failure.
-     */
-    private boolean getNextLeftPage() {
-      /* TODO */
-      if(!this.leftIterator.hasNext()) return false;
-      this.leftPage = this.leftIterator.next();
-      try {
-        leftHeader = SortMergeOperator.this.getPageHeader(this.leftTableName, leftPage);
-      } catch (DatabaseException e) {
+      }
+      if (this.leftRecord == null || this.leftPage == null || this.rightPage == null) {
         return false;
       }
-      this.leftEntryNum=0;
-      return true;
-    }
-    /*Advance left record to next position
-     * @return true means sucessful, otherwise failure.
-     */
- 
-    private boolean advanceRightTable() {
-      /* TODO */
-
-        while(this.rightRecord == null){
-		    if(this.rightEntryNum<this.rightNo_of_Entries){//more to read this page
-	  		    this.rightRecord=getNextRightRecordInPage();
-	  		    this.rightEntryNum++;
-		    }else { //this page has no records
-	       	      if(!getNextRightPage()) //unsucessful
-			        return false;
-		    }
-	    }
-      return true;
-    }
-    /*
-      Read a record from a page
-      @p  Page ID
-      @s  Record schema
-      @entryNum, then entry number
-      @limit the total number of entry number per page
-      @currHeader the header of this page
-      @entrySize,  the size of each entry (record).
-      @pageHeaderSize,  the size of header
-     */
-    private Record getRecord(Page p, Schema s, int entryNum, int limit, byte currHeader[], int entrySize, int pageHeaderSize) {
-      if (entryNum < limit) {
-        byte b = currHeader[entryNum / 8];
-        int bitOffset = 7 - (entryNum % 8);
-        byte mask = (byte) (1 << bitOffset);
-
-        byte value = (byte) (b & mask);
-        if (value != 0) {
-          int offset = pageHeaderSize + (entrySize * entryNum);
-          byte[] bytes = p.readBytes(offset, entrySize);
-
-          Record toRtn = s.decode(bytes);
-          return toRtn;
+      while (true) {
+        if (this.rightRecord != null) {
+          DataBox leftJoinValue = this.leftRecord.getValues().get(SortMergeOperator.this.getLeftColumnIndex());
+          DataBox rightJoinValue = this.rightRecord.getValues().get(SortMergeOperator.this.getRightColumnIndex());
+          while (leftJoinValue.compareTo(rightJoinValue) < 0) {
+            if (marked) {
+              this.rightEntryNum = this.rightEntryMark;
+              advanceRightTable();
+              rightJoinValue = this.rightRecord.getValues().get(SortMergeOperator.this.getRightColumnIndex());
+            }
+            marked = false;
+            if (!advanceLeftTable()) {
+              return false;
+            }
+            leftJoinValue = this.leftRecord.getValues().get(SortMergeOperator.this.getLeftColumnIndex());
+          }
+          while (leftJoinValue.compareTo(rightJoinValue) > 0) {
+            if (marked) {
+              this.rightEntryNum = this.rightEntryMark;
+              advanceRightTable();
+            }
+            marked = false;
+            if (!advanceRightTable()) {
+              return false;
+            }
+            rightJoinValue = rightRecord.getValues().get(SortMergeOperator.this.getRightColumnIndex());
+          }
+          if (leftJoinValue.compareTo(rightJoinValue) == 0 && !marked) {
+            marked = true;
+            this.rightEntryMark = this.rightEntryNum-1;
+          }
+          while (leftJoinValue.compareTo(rightJoinValue) == 0) {
+            List<DataBox> leftValues = new ArrayList<DataBox>(this.leftRecord.getValues());
+            List<DataBox> rightValues = new ArrayList<DataBox>(rightRecord.getValues());
+            leftValues.addAll(rightValues);
+            this.nextRecord = new Record(leftValues);
+            advanceRightTable();
+            return true;
+          }
+        } else {
+          if (!advanceRightTable()) {
+            if (advanceLeftTable()){
+              this.rightEntryNum = this.rightEntryMark;
+              advanceRightTable();
+            } else {
+              return false;
+            }
+          }
         }
+      }
+
+    }
+
+    private String sortMerge(String tableName, Comparator<Record> comparator) throws DatabaseException {
+      Iterator<Record> iter = SortMergeOperator.this.getTableIterator(tableName);
+      List<Record> records = new ArrayList<Record>();
+      while (iter.hasNext()) {
+        records.add(iter.next());
+      }
+      Collections.sort(records, comparator);
+      Schema s = SortMergeOperator.this.getSchema(tableName);
+      SortMergeOperator.this.createTempTable(s, tableName+"sorted");
+      Iterator<Record> sortedIter = records.iterator();
+      while (sortedIter.hasNext()) {
+        SortMergeOperator.this.addRecord(tableName+"sorted", sortedIter.next().getValues());
+      }
+      return tableName+"sorted";
+    }
+
+    private boolean advanceLeftTable() {
+      this.leftRecord = getNextLeftRecordInPage();
+      if (this.leftRecord == null) {
+        while (this.leftIterator.hasNext()) {
+          try {
+            this.leftPage = this.leftIterator.next();
+            this.leftHeader = SortMergeOperator.this.getPageHeader(this.leftTableName, this.leftPage);
+            this.leftEntryNum = 0;
+            this.leftRecord = getNextLeftRecordInPage();
+            if (this.leftRecord != null) {
+              return true;
+            }
+          } catch (DatabaseException e) {
+            return false;
+          }
+        }
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+    private boolean advanceRightTable() {
+      this.rightRecord = getNextRightRecordInPage();
+      if (this.rightRecord == null) {
+        while (this.rightIterator.hasNext()) {
+          try {
+            this.rightPage = this.rightIterator.next();
+            this.rightHeader = SortMergeOperator.this.getPageHeader(this.rightTableName, this.rightPage);
+            this.rightEntryNum = 0;
+            this.rightRecord = getNextRightRecordInPage();
+            if (this.rightRecord != null) {
+              return true;
+            }
+          } catch (DatabaseException e) {
+            return false;
+          }
+        }
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+    private Record getNextLeftRecordInPage() {
+      try {
+        while (this.leftEntryNum < SortMergeOperator.this.getNumEntriesPerPage(this.leftTableName)) {
+          byte b = leftHeader[this.leftEntryNum / 8];
+          int bitOffset = 7 - (this.leftEntryNum % 8);
+          byte mask = (byte) (1 << bitOffset);
+          byte value = (byte) (b & mask);
+          if (value != 0) {
+            int entrySize = SortMergeOperator.this .getEntrySize(this.leftTableName);
+            int offset = SortMergeOperator.this.getHeaderSize(this.leftTableName) + (entrySize * this.leftEntryNum);
+            byte[] bytes = this.leftPage.readBytes(offset, entrySize);
+            Record toRtn = SortMergeOperator.this.getLeftSource().getOutputSchema().decode(bytes);
+            this.leftEntryNum++;
+            return toRtn;
+          }
+          this.leftEntryNum++;
+        }
+      } catch (DatabaseException d)  {
+        return null;
       }
       return null;
     }
-    private Record getNextLeftRecordInPage() {
-      /* TODO */
-      return getRecord(leftPage, leftSchema, leftEntryNum, leftNo_of_Entries, leftHeader, leftEntrySize,
-              leftHeaderSize);
-      
-    }
 
     private Record getNextRightRecordInPage() {
-      /* TODO */
-      return getRecord(rightPage, rightSchema, rightEntryNum, rightNo_of_Entries, rightHeader, rightEntrySize,
-              rightHeaderSize);
+      try {
+        while (this.rightEntryNum < SortMergeOperator.this.getNumEntriesPerPage(this.rightTableName)) {
+          byte b = rightHeader[this.rightEntryNum / 8];
+          int bitOffset = 7 - (this.rightEntryNum % 8);
+          byte mask = (byte) (1 << bitOffset);
+          byte value = (byte) (b & mask);
+          if (value != 0) {
+            int entrySize = SortMergeOperator.this.getEntrySize(this.rightTableName);
+            int offset = SortMergeOperator.this.getHeaderSize(this.rightTableName) + (entrySize * rightEntryNum);
+            byte[] bytes = this.rightPage.readBytes(offset, entrySize);
+            Record toRtn = SortMergeOperator.this.getRightSource().getOutputSchema().decode(bytes);
+            this.rightEntryNum++;
+            return toRtn;
+          }
+          this.rightEntryNum++;
+        }
+      } catch (DatabaseException d) {
+        return null;
+      }
+      return null;
     }
 
     /**
-    * Yields the next record of this iterator.
-    *
-    * @return the next Record
-    * @throws NoSuchElementException if there are no more Records to yield
-    */
+     * Yields the next record of this iterator.
+     *
+     * @return the next Record
+     * @throws NoSuchElementException if there are no more Records to yield
+     */
     public Record next() {
-      /* TODO */
-
-      if(this.hasNext() ){
-              Record r = this.nextRecord;
-	      this.nextRecord=null;
-              return r;
+      if (this.hasNext()) {
+        Record r = this.nextRecord;
+        this.nextRecord = null;
+        return r;
       }
       throw new NoSuchElementException();
     }
@@ -318,20 +296,14 @@ public class SortMergeOperator extends JoinOperator {
     private class LeftRecordComparator implements Comparator<Record> {
       public int compare(Record o1, Record o2) {
         return o1.getValues().get(SortMergeOperator.this.getLeftColumnIndex()).compareTo(
-            o2.getValues().get(SortMergeOperator.this.getLeftColumnIndex()));
+                o2.getValues().get(SortMergeOperator.this.getLeftColumnIndex()));
       }
     }
 
     private class RightRecordComparator implements Comparator<Record> {
       public int compare(Record o1, Record o2) {
         return o1.getValues().get(SortMergeOperator.this.getRightColumnIndex()).compareTo(
-            o2.getValues().get(SortMergeOperator.this.getRightColumnIndex()));
-      }
-    }
-    private class LeftRightRecordComparator implements Comparator<Record> {
-      public int compare(Record o1, Record o2) {
-        return o1.getValues().get(SortMergeOperator.this.getLeftColumnIndex()).compareTo(
-            o2.getValues().get(SortMergeOperator.this.getRightColumnIndex()));
+                o2.getValues().get(SortMergeOperator.this.getRightColumnIndex()));
       }
     }
   }

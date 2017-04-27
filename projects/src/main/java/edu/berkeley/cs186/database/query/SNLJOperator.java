@@ -31,6 +31,9 @@ public class SNLJOperator extends JoinOperator {
           rightColumnName,
           transaction,
           JoinType.SNLJ);
+
+
+    
     this.leftSource = getLeftSource();
     this.rightSource = getRightSource();
     this.leftColumnIndex = getLeftColumnIndex();
@@ -38,11 +41,32 @@ public class SNLJOperator extends JoinOperator {
     this.leftColumnName = getLeftColumnName();
     this.rightColumnName = getRightColumnName();
     this.transaction = getTransaction();
+    this.stats = this.estimateStats();
+    this.cost = this.estimateIOCost();
   }
 
   public Iterator<Record> iterator() throws QueryPlanException, DatabaseException {
     return new SNLJIterator();
   }
+
+  public int estimateIOCost() throws QueryPlanException {
+    /* TODO: Implement me! */
+    /*float reductF=this.stats.getReductionFactor(columnIndex,
+            predicate, value);*/
+    int leftNumRec=this.leftSource.getStats().getNumRecords();
+    int leftNumPages=this.leftSource.getStats().getNumPages();
+    int rightNumPages=this.rightSource.getStats().getNumPages();
+    /*int leftMax=this.leftSource.getStats().
+            getHistogram(this.leftColumnIndex).getMaxValue();
+    int rightMax=this.rightSource    int leftNumRec=this.leftSource.getStats().getNumRecords();.getStats().
+            getHistogram(this.rightColumnIndex).getMaxValue();
+    float myMax=rightMax;
+    if(leftMax>rightMax)
+      myMax=leftMax;*/
+    int estimate=leftNumRec*rightNumPages+leftNumPages;
+    return estimate;
+  }
+
 
   /**
    * An implementation of Iterator that provides an iterator interface for this operator.
